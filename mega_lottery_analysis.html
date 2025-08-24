@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEGA彩票号码规律分析工具</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        .content {
+            padding: 30px;
+        }
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            border-left: 5px solid #667eea;
+        }
+        .section h2 {
+            color: #333;
+            margin-top: 0;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .lottery-numbers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .draw-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .draw-item h3 {
+            margin: 0 0 10px 0;
+            color: #667eea;
+        }
+        .numbers {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+        .number {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+        }
+        .main-number {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        .bonus-number {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+        }
+        .frequency-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .frequency-item {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+        }
+        .hot-number {
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            color: white;
+        }
+        .cold-number {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            color: white;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .warning h4 {
+            margin-top: 0;
+            color: #856404;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 MEGA彩票号码规律分析工具</h1>
+            <p>分析最近十期开奖号码，寻找可能的规律和趋势</p>
+        </div>
+        
+        <div class="content">
+            <div class="section">
+                <h2>📊 最近十期开奖号码</h2>
+                <div class="lottery-numbers" id="lotteryNumbers">
+                    <!-- 动态生成开奖号码 -->
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📈 号码频率分析</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>🔥 热号 (出现频率最高)</h3>
+                        <div id="hotNumbers" class="frequency-list">
+                            <!-- 动态生成热号 -->
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>❄️ 冷号 (出现频率最低)</h3>
+                        <div id="coldNumbers" class="frequency-list">
+                            <!-- 动态生成冷号 -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="frequencyChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>🎲 号码模式分析</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>奇偶比例分布</h3>
+                        <div class="chart-container">
+                            <canvas id="oddEvenChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>大小比例分布</h3>
+                        <div class="chart-container">
+                            <canvas id="highLowChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>号码和值趋势</h3>
+                        <div class="chart-container">
+                            <canvas id="sumTrendChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>特别号频率</h3>
+                        <div class="chart-container">
+                            <canvas id="bonusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>💡 趋势预测和投注建议</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>📊 统计摘要</h3>
+                        <div id="statistics">
+                            <!-- 动态生成统计信息 -->
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>🎯 投注建议</h3>
+                        <div id="recommendations">
+                            <!-- 动态生成建议 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="warning">
+                <h4>⚠️ 重要提醒</h4>
+                <p><strong>1.</strong> 彩票具有随机性，历史数据仅供参考</p>
+                <p><strong>2.</strong> 请理性投注，不要超出承受能力</p>
+                <p><strong>3.</strong> 本分析工具仅供娱乐和学习使用</p>
+                <p><strong>4.</strong> 实际投注请以官方开奖结果为准</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // MEGA彩票示例数据 (最近10期)
+        const lotteryData = [
+            { drawId: 1001, numbers: [3, 12, 25, 38, 45], bonus: [7], date: "2024-01-15" },
+            { drawId: 1002, numbers: [8, 19, 27, 33, 41], bonus: [12], date: "2024-01-16" },
+            { drawId: 1003, numbers: [5, 16, 22, 35, 44], bonus: [9], date: "2024-01-17" },
+            { drawId: 1004, numbers: [11, 18, 29, 36, 42], bonus: [6], date: "2024-01-18" },
+            { drawId: 1005, numbers: [2, 14, 23, 31, 39], bonus: [15], date: "2024-01-19" },
+            { drawId: 1006, numbers: [7, 17, 26, 34, 43], bonus: [11], date: "2024-01-20" },
+            { drawId: 1007, numbers: [9, 20, 28, 37, 46], bonus: [4], date: "2024-01-21" },
+            { drawId: 1008, numbers: [4, 13, 21, 32, 40], bonus: [8], date: "2024-01-22" },
+            { drawId: 1009, numbers: [6, 15, 24, 30, 38], bonus: [13], date: "2024-01-23" },
+            { drawId: 1010, numbers: [10, 19, 25, 33, 41], bonus: [5], date: "2024-01-24" }
+        ];
+
+        // 分析函数
+        function analyzeLotteryData() {
+            // 统计号码频率
+            const numberFrequency = {};
+            const bonusFrequency = {};
+            
+            lotteryData.forEach(draw => {
+                draw.numbers.forEach(num => {
+                    numberFrequency[num] = (numberFrequency[num] || 0) + 1;
+                });
+                draw.bonus.forEach(num => {
+                    bonusFrequency[num] = (bonusFrequency[num] || 0) + 1;
+                });
+            });
+            
+            // 找出热号和冷号
+            const sortedNumbers = Object.entries(numberFrequency).sort((a, b) => b[1] - a[1]);
+            const hotNumbers = sortedNumbers.slice(0, 5);
+            const coldNumbers = sortedNumbers.slice(-5);
+            
+            // 分析模式
+            const patterns = {
+                oddEven: [],
+                highLow: [],
+                sums: [],
+                consecutive: []
+            };
+            
+            lotteryData.forEach(draw => {
+                const sortedNums = [...draw.numbers].sort((a, b) => a - b);
+                
+                // 奇偶比例
+                const oddCount = sortedNums.filter(n => n % 2 === 1).length;
+                const evenCount = 5 - oddCount;
+                patterns.oddEven.push(`${oddCount}:${evenCount}`);
+                
+                // 大小比例 (1-25为小，26-50为大)
+                const lowCount = sortedNums.filter(n => n <= 25).length;
+                const highCount = 5 - lowCount;
+                patterns.highLow.push(`${lowCount}:${highCount}`);
+                
+                // 号码和值
+                patterns.sums.push(sortedNums.reduce((sum, num) => sum + num, 0));
+                
+                // 连续号码
+                let consecutive = 0;
+                for (let i = 0; i < sortedNums.length - 1; i++) {
+                    if (sortedNums[i + 1] - sortedNums[i] === 1) consecutive++;
+                }
+                patterns.consecutive.push(consecutive);
+            });
+            
+            return {
+                numberFrequency,
+                bonusFrequency,
+                hotNumbers,
+                coldNumbers,
+                patterns
+            };
+        }
+
+        // 渲染开奖号码
+        function renderLotteryNumbers() {
+            const container = document.getElementById('lotteryNumbers');
+            container.innerHTML = '';
+            
+            lotteryData.forEach(draw => {
+                const drawItem = document.createElement('div');
+                drawItem.className = 'draw-item';
+                
+                const numbers = draw.numbers.map(num => 
+                    `<div class="number main-number">${num}</div>`
+                ).join('');
+                
+                const bonus = draw.bonus.map(num => 
+                    `<div class="number bonus-number">${num}</div>`
+                ).join('');
+                
+                drawItem.innerHTML = `
+                    <h3>第${draw.drawId}期</h3>
+                    <div class="numbers">${numbers}</div>
+                    <div>特别号: ${bonus}</div>
+                    <small>${draw.date}</small>
+                `;
+                
+                container.appendChild(drawItem);
+            });
+        }
+
+        // 渲染热号和冷号
+        function renderHotColdNumbers(analysis) {
+            const hotContainer = document.getElementById('hotNumbers');
+            const coldContainer = document.getElementById('coldNumbers');
+            
+            hotContainer.innerHTML = '';
+            coldContainer.innerHTML = '';
+            
+            analysis.hotNumbers.forEach(([num, freq]) => {
+                const item = document.createElement('div');
+                item.className = 'frequency-item hot-number';
+                item.innerHTML = `<strong>${num}</strong><br>${freq}次`;
+                hotContainer.appendChild(item);
+            });
+            
+            analysis.coldNumbers.forEach(([num, freq]) => {
+                const item = document.createElement('div');
+                item.className = 'frequency-item cold-number';
+                item.innerHTML = `<strong>${num}</strong><br>${freq}次`;
+                coldContainer.appendChild(item);
+            });
+        }
+
+        // 创建图表
+        function createCharts(analysis) {
+            // 号码频率图表
+            const freqCtx = document.getElementById('frequencyChart').getContext('2d');
+            new Chart(freqCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(analysis.numberFrequency),
+                    datasets: [{
+                        label: '出现次数',
+                        data: Object.values(analysis.numberFrequency),
+                        backgroundColor: 'rgba(102, 126, 234, 0.7)',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '主号码出现频率'
+                        }
+                    }
+                }
+            });
+            
+            // 奇偶比例图表
+            const oddEvenCtx = document.getElementById('oddEvenChart').getContext('2d');
+            const oddEvenCounts = {};
+            analysis.patterns.oddEven.forEach(ratio => {
+                oddEvenCounts[ratio] = (oddEvenCounts[ratio] || 0) + 1;
+            });
+            
+            new Chart(oddEvenCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(oddEvenCounts),
+                    datasets: [{
+                        data: Object.values(oddEvenCounts),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(75, 192, 192, 0.7)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '奇偶比例分布'
+                        }
+                    }
+                }
+            });
+            
+            // 大小比例图表
+            const highLowCtx = document.getElementById('highLowChart').getContext('2d');
+            const highLowCounts = {};
+            analysis.patterns.highLow.forEach(ratio => {
+                highLowCounts[ratio] = (highLowCounts[ratio] || 0) + 1;
+            });
+            
+            new Chart(highLowCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(highLowCounts),
+                    datasets: [{
+                        data: Object.values(highLowCounts),
+                        backgroundColor: [
+                            'rgba(255, 159, 64, 0.7)',
+                            'rgba(153, 102, 255, 0.7)',
+                            'rgba(255, 205, 86, 0.7)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '大小比例分布'
+                        }
+                    }
+                }
+            });
+            
+            // 号码和值趋势图表
+            const sumCtx = document.getElementById('sumTrendChart').getContext('2d');
+            new Chart(sumCtx, {
+                type: 'line',
+                data: {
+                    labels: lotteryData.map((_, i) => `第${i+1}期`),
+                    datasets: [{
+                        label: '号码和值',
+                        data: analysis.patterns.sums,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        tension: 0.1,
+                        pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '号码和值趋势'
+                        }
+                    }
+                }
+            });
+            
+            // 特别号频率图表
+            const bonusCtx = document.getElementById('bonusChart').getContext('2d');
+            new Chart(bonusCtx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(analysis.bonusFrequency),
+                    datasets: [{
+                        data: Object.values(analysis.bonusFrequency),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(153, 102, 255, 0.7)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '特别号出现频率'
+                        }
+                    }
+                }
+            });
+        }
+
+        // 渲染统计信息
+        function renderStatistics(analysis) {
+            const statsContainer = document.getElementById('statistics');
+            const avgSum = (analysis.patterns.sums.reduce((a, b) => a + b, 0) / analysis.patterns.sums.length).toFixed(1);
+            const minSum = Math.min(...analysis.patterns.sums);
+            const maxSum = Math.max(...analysis.patterns.sums);
+            
+            statsContainer.innerHTML = `
+                <p><strong>平均号码和值:</strong> ${avgSum}</p>
+                <p><strong>和值范围:</strong> ${minSum} - ${maxSum}</p>
+                <p><strong>最常见的奇偶比例:</strong> ${getMostCommon(analysis.patterns.oddEven)}</p>
+                <p><strong>最常见的大小比例:</strong> ${getMostCommon(analysis.patterns.highLow)}</p>
+                <p><strong>连续号码出现情况:</strong> ${getConsecutiveStats(analysis.patterns.consecutive)}</p>
+            `;
+        }
+
+        // 渲染投注建议
+        function renderRecommendations(analysis) {
+            const recContainer = document.getElementById('recommendations');
+            const avgSum = (analysis.patterns.sums.reduce((a, b) => a + b, 0) / analysis.patterns.sums.length);
+            
+            recContainer.innerHTML = `
+                <p><strong>建议关注的热号:</strong></p>
+                <ul>
+                    ${analysis.hotNumbers.slice(0, 3).map(([num, freq]) => 
+                        `<li>号码${num} (出现${freq}次)</li>`
+                    ).join('')}
+                </ul>
+                <p><strong>建议号码和值范围:</strong> ${Math.floor(avgSum-10)} - ${Math.ceil(avgSum+10)}</p>
+                <p><strong>建议奇偶比例:</strong> ${getMostCommon(analysis.patterns.oddEven)}</p>
+                <p><strong>建议大小比例:</strong> ${getMostCommon(analysis.patterns.highLow)}</p>
+            `;
+        }
+
+        // 辅助函数
+        function getMostCommon(arr) {
+            const counts = {};
+            arr.forEach(item => {
+                counts[item] = (counts[item] || 0) + 1;
+            });
+            return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+        }
+
+        function getConsecutiveStats(arr) {
+            const counts = {};
+            arr.forEach(item => {
+                counts[item] = (counts[item] || 0) + 1;
+            });
+            return Object.entries(counts).map(([count, freq]) => 
+                `${count}个连续号码: ${freq}次`
+            ).join(', ');
+        }
+
+        // 页面加载完成后执行分析
+        document.addEventListener('DOMContentLoaded', function() {
+            const analysis = analyzeLotteryData();
+            
+            renderLotteryNumbers();
+            renderHotColdNumbers(analysis);
+            createCharts(analysis);
+            renderStatistics(analysis);
+            renderRecommendations(analysis);
+        });
+    </script>
+</body>
+</html>
+
